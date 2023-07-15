@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  tg-captcha-bot2:
+  tg-captcha-bot:
     image: momai/tg-captcha-bot:latest
     volumes:
       - ./config.toml:/config.toml

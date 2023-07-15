@@ -311,9 +311,12 @@ if config.CasEnable == "yes" {
                 log.Println(err)
         }
     time.AfterFunc(time.Duration(n)*time.Second, func() {
-        _, passed := passedUsers.Load(m.UserJoined.ID)
+       // _, passed := passedUsers.Load(m.UserJoined.ID)
+       _, passed := passedUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
         if !passed {
-            _, handled := handledUsers.Load(m.UserJoined.ID)
+           // _, handled := handledUsers.Load(m.UserJoined.ID)
+	_, handled := handledUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
+
             if !handled {
                 banDuration, e := getBanDuration()
                 if e != nil {
@@ -368,7 +371,8 @@ func passChallenge(c *tb.Callback) {
         return
     }
 
-    passedUsers.Store(c.Sender.ID, struct{}{})
+   // passedUsers.Store(c.Sender.ID, struct{}{})
+     passedUsers.Store(fmt.Sprintf("%d_%d", c.Message.Chat.ID, c.Sender.ID), struct{}{})
 
     if config.PrintSuccessAndFail == "show" {
         _, err := bot.Edit(c.Message, config.AfterSuccessMessage)
@@ -439,7 +443,8 @@ func fakeChallenge(c *tb.Callback) {
             }
         }
 
-        handledUsers.Store(c.Sender.ID, struct{}{})
+       // handledUsers.Store(c.Sender.ID, struct{}{})
+	handledUsers.Store(fmt.Sprintf("%d_%d", c.Message.Chat.ID, c.Sender.ID), struct{}{})
 
            log.Printf("User: %v was banned by fake button in chat: %v for: %v minutes", c.Sender, c.Message.Chat, config.FakeBanDurationMin)
 }

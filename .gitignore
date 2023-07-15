@@ -1,4 +1,7 @@
 help_message.txt
+docker-compose.yml
+config.toml
+help_message.txt
 .env
 .idea
 dist/
