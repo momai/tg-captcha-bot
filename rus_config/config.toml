@@ -2,6 +2,8 @@
 
 cas_enable = "yes"
 
+cas_ban_duration = 43200  # 1 month
+
 captcha = "Капча: %s"
 
 captcha_enable = "Активировано приветствие с капчей для новых пользователей."
@@ -14,6 +16,9 @@ attack_mode_enable = "В режиме атаки, все новые участн
 button_text = "Я человек."
 
 ban_button_text = "Я спамер."
+
+# Ban group. Groups in which the bot will not work.
+excluded_group_ids = [-100000, -100000]
 
 # Bot sends this message to new users
 welcome_message = "привет! Это защита от спама. У вас есть 30 секунд, чтобы нажать правильную кнопку. В противном случае, вы будете заблокированы на 1 час."

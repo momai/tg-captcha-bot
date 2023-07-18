@@ -42,6 +42,7 @@ type Config struct {
         AttackMode          string `mapstructure:"attack_mode"`
         AttackModeEnable    string `mapstructure:"attack_mode_enable"`
         CasEnable           string `mapstructure:"cas_enable"`
+	ExcludedGroupIDs []int64 `mapstructure:"excluded_group_ids"`
 
 }
 
@@ -212,6 +213,11 @@ func shuffleButtons(buttons []tb.InlineButton) [][]tb.InlineButton {
 }
 
 func challengeUser(m *tb.Message) {
+    for _, id := range config.ExcludedGroupIDs {
+        if m.Chat.ID == id {
+            return
+        }
+    }
      attackEnabled, _ := attackMode.Load(m.Chat.ID)
      if attackEnabled != nil && attackEnabled.(bool) {
          banDuration := time.Now().Add(5 * time.Minute).Unix()
