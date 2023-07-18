@@ -15,6 +15,9 @@ button_text = "I'm not a robot!"
 
 ban_button_text = "I'm robot!."
 
+# Ban group. Groups in which the bot will not work.
+excluded_group_ids = [-100000, -100000]
+
 # Bot sends this message to new users
 welcome_message = "Hello! This is the spam protection system. Please press the button within 30 seconds or you will be banned!"
 
