@@ -8,6 +8,7 @@ import (
         "net/http"
         "os"
         "os/signal"
+        "path"
         "regexp"
         "strconv"
         "sync"
@@ -37,13 +38,12 @@ type Config struct {
         Socks5Port          string `mapstructure:"socks5_port"`
         Socks5Login         string `mapstructure:"socks5_login"`
         Socks5Password      string `mapstructure:"socks5_password"`
-        Captcha              string `mapstructure:"captcha"`
-        CaptchaEnable        string `mapstructure:"captcha_enable"`
+        Captcha             string `mapstructure:"captcha"`
+        CaptchaEnable       string `mapstructure:"captcha_enable"`
         AttackMode          string `mapstructure:"attack_mode"`
         AttackModeEnable    string `mapstructure:"attack_mode_enable"`
         CasEnable           string `mapstructure:"cas_enable"`
-	ExcludedGroupIDs []int64 `mapstructure:"excluded_group_ids"`
-
+  ExcludedGroupIDs []int64 `mapstructure:"excluded_group_ids"`
 }
 
 var config Config
@@ -120,32 +120,31 @@ func main() {
                 })
 
 
-
-                helpMessage, err := readFileToString("help_message.txt")
-if err != nil {
-        log.Fatalf("Error reading help message file: %v", err)
-}
-
-bot.Handle("/start", func(m *tb.Message) {
-        if m.Chat.Type == tb.ChatPrivate {
-                _, err := bot.Send(m.Chat, helpMessage, tb.ModeMarkdown)
+        conf_path, ok := os.LookupEnv(configPath)
+        if ok {
+                helpMessage, err := readFileToString(path.Join(conf_path, "help_message.txt"))
                 if err != nil {
-                        log.Println(err)
+                        log.Fatalf("Error reading help message file: %v", err)
                 }
+
+                bot.Handle("/start", func(m *tb.Message) {
+                        if m.Chat.Type == tb.ChatPrivate {
+                                _, err := bot.Send(m.Chat, helpMessage, tb.ModeMarkdown)
+                                if err != nil {
+                                        log.Println(err)
+                                }
+                        }
+                })
+
+                bot.Handle("/help", func(m *tb.Message) {
+                        if m.Chat.Type == tb.ChatPrivate {
+                                _, err := bot.Send(m.Chat, helpMessage, tb.ModeMarkdown)
+                                if err != nil {
+                                        log.Println(err)
+                                }
+                        }
+                })
         }
-})
-
-bot.Handle("/help", func(m *tb.Message) {
-        if m.Chat.Type == tb.ChatPrivate {
-                _, err := bot.Send(m.Chat, helpMessage, tb.ModeMarkdown)
-                if err != nil {
-                        log.Println(err)
-                }
-        }
-})
-
-
-
 
 
         bot.Handle("/attack", func(m *tb.Message) {
@@ -321,7 +320,7 @@ if config.CasEnable == "yes" {
        _, passed := passedUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
         if !passed {
            // _, handled := handledUsers.Load(m.UserJoined.ID)
-	_, handled := handledUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
+  _, handled := handledUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
 
             if !handled {
                 banDuration, e := getBanDuration()
@@ -450,9 +449,9 @@ func fakeChallenge(c *tb.Callback) {
         }
 
        // handledUsers.Store(c.Sender.ID, struct{}{})
-	handledUsers.Store(fmt.Sprintf("%d_%d", c.Message.Chat.ID, c.Sender.ID), struct{}{})
+       handledUsers.Store(fmt.Sprintf("%d_%d", c.Message.Chat.ID, c.Sender.ID), struct{}{})
 
-           log.Printf("User: %v was banned by fake button in chat: %v for: %v minutes", c.Sender, c.Message.Chat, config.FakeBanDurationMin)
+       log.Printf("User: %v was banned by fake button in chat: %v for: %v minutes", c.Sender, c.Message.Chat, config.FakeBanDurationMin)
 }
 
 
