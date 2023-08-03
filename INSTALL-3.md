@@ -6,30 +6,27 @@ Obtain bot token from [@BotFather](https://t.me/BotFather)
 
 ## Instructions
 
-1. Clone the repo
+1. Download a tarball of a preffered vesion
 
 ```bash
-git clone https://github.com/momai/tg-captcha-bot.git
-cd tg-captcha-bot
+wget https://github.com/momai/tg-captcha-bot/archive/refs/tags/v.1.2.1.tar.gz
+tar -xavf v.1.2.1.tar.gz
 ```
 
-2. Download bot binary and move it to needed directory
+2. Build the binary and place it in `$PATH`
 
 ```bash
-wget https://github.com/momai/tg-captcha-bot/archive/refs/tags/v.1.0.0.tar.gz
-
-tar v.1.0.0.tar.gz
-
-mv tg-captcha-bot /usr/local/bin/tg-captcha-bot
-
-chmod +x /usr/local/bin/tg-captcha-bot
+cd tg-captcha-bot-v.1.2.1/
+make
+mv bot /usr/local/bin/tg-captcha-bot
 ```
+> Run `CGO_ENABLED=0 make` if you would like to build the binary for another host
 
 3. Move bot's config to needed path
 
 ```bash
 mkdir -p /etc/tg-captcha-bot
-cp config.toml /etc/tg-captcha-bot/config.toml
+cp config.toml help_message.txt /etc/tg-captcha-bot/
 ```
 
 4. Create systemd unit file `/etc/systemd/system/tg-captcha-bot.service`
