@@ -42,7 +42,7 @@ type Config struct {
         AttackMode          string `mapstructure:"attack_mode"`
         AttackModeEnable    string `mapstructure:"attack_mode_enable"`
         CasEnable           string `mapstructure:"cas_enable"`
-	ExcludedGroupIDs []int64 `mapstructure:"excluded_group_ids"`
+	CasBanDuration      string `mapstructure:"cas_ban_duration"`
 
 }
 
@@ -212,119 +212,62 @@ func shuffleButtons(buttons []tb.InlineButton) [][]tb.InlineButton {
     return [][]tb.InlineButton{shuffled}
 }
 
-func challengeUser(m *tb.Message) {
-    for _, id := range config.ExcludedGroupIDs {
-        if m.Chat.ID == id {
-            return
-        }
-    }
-     attackEnabled, _ := attackMode.Load(m.Chat.ID)
-     if attackEnabled != nil && attackEnabled.(bool) {
-         banDuration := time.Now().Add(5 * time.Minute).Unix()
-         chatMember := tb.ChatMember{User: m.UserJoined, RestrictedUntil: banDuration}
-         err := bot.Ban(m.Chat, &chatMember)
-         if err != nil {
-             log.Println(err)
-         }
-         log.Printf("User: %v was banned in chat: %v for: 5 minutes (attack mode)", m.UserJoined, m.Chat)
-         err = bot.Delete(m)
-         if err != nil {
-             log.Println(err)
-         }
-         return
-     }
 
-    botState, ok := botStates.Load(m.Chat.ID)
-    if ok && !botState.(bool) {
+func challengeUser(m *tb.Message) {
+    // Проверяем, включен ли режим атаки
+    attackEnabled, _ := attackMode.Load(m.Chat.ID)
+    if attackEnabled != nil && attackEnabled.(bool) {
+        banDuration := time.Now().Add(5 * time.Minute).Unix()
+        chatMember := tb.ChatMember{User: m.UserJoined, RestrictedUntil: banDuration}
+        err := bot.Ban(m.Chat, &chatMember)
+        if err != nil {
+            log.Println(err)
+        }
+        log.Printf("User: %v was banned in chat: %v for: 5 minutes (attack mode)", m.UserJoined, m.Chat)
+        err = bot.Delete(m)
+        if err != nil {
+            log.Println(err)
+        }
         return
     }
-        if m.UserJoined.ID != m.Sender.ID {
-                return
-        }
-        log.Printf("User: %v joined the chat: %v", m.UserJoined, m.Chat)
 
-        if member, err := bot.ChatMemberOf(m.Chat, m.UserJoined); err == nil {
-                if member.Role == tb.Restricted {
-                        log.Printf("User: %v already restricted in chat: %v", m.UserJoined, m.Chat)
-                        return
-                }
-        // Check if CAS is enabled and the user is in CAS
-if config.CasEnable == "yes" {
-    isBannedByCas, casStatus, err := checkUserCas(m.UserJoined.ID)
+    // Проверяем, был ли пользователь уже забанен
+    chatMember, err := bot.ChatMemberOf(m.Chat, m.UserJoined)
     if err != nil {
-        log.Printf("Error checking user: %v with CAS in chat: %v, error: %v", m.UserJoined, m.Chat, err)
-    } else {
-        if casStatus == "" {
-            log.Printf("User: %v was checked by CAS in chat: %v, user is not in CAS blacklist", m.UserJoined, m.Chat)
-        } else {
-            log.Printf("User: %v was checked by CAS in chat: %v, status: %v", m.UserJoined, m.Chat, casStatus)
-        }
-        if isBannedByCas {
-            banDuration, e := getBanDuration()
-            if e != nil {
-                log.Println(e)
-            }
-            chatMember := tb.ChatMember{User: m.UserJoined, RestrictedUntil: banDuration}
-            err := bot.Ban(m.Chat, &chatMember)
-            if err != nil {
-                log.Println(err)
-            }
-            log.Printf("User: %v was banned by CAS in chat: %v", m.UserJoined, m.Chat) // Log message
-            return
-        }
+        log.Println(err)
+        return
     }
-}
-// end CAS
+    if chatMember.RestrictedUntil != 0 {
+        // Пользователь уже забанен, пропускаем вывод капчи
+        log.Printf("User: %v is already restricted in chat: %v", m.UserJoined, m.Chat)
+	        if config.PrintSuccessAndFail == "del" {
+                        err := bot.Delete(m)
+                        if err != nil {
+                            log.Println(err)
+                        }
+                    }
+        return
+    }
 
-        }
+    // Проверяем, является ли пользователь инициатором
+    if m.UserJoined.ID != m.Sender.ID {
+        return
+    }
+    log.Printf("User: %v joined the chat: %v", m.UserJoined, m.Chat)
 
-        newChatMember := tb.ChatMember{User: m.UserJoined, RestrictedUntil: tb.Forever(), Rights: tb.Rights{CanSendMessages: false}}
-        err := bot.Restrict(m.Chat, &newChatMember)
+    // Проверяем, находится ли пользователь в списке забаненных CAS
+    if config.CasEnable == "yes" {
+        isBannedByCas, casStatus, err := checkUserCas(m.UserJoined.ID)
         if err != nil {
-                log.Println(err)
-        }
-
-        challengeBtn := tb.InlineButton{
-                Unique: "challenge_btn",
-                Text:   config.ButtonText,
-                Data:   "challenge_btn",
-        }
-        banBtn := tb.InlineButton{
-                Unique: "ban_btn",
-                Text:   config.FakeButton,
-                Data:   "ban_btn",
-        }
-
-        banBtn2 := tb.InlineButton{
-                Unique: "ban_btn_2",
-                Text:   config.FakeButton,
-                Data:   "ban_btn_2",
-        }
-        shuffledKeys := shuffleButtons([]tb.InlineButton{challengeBtn, banBtn, banBtn2})
-        personalizedWelcomeMessage := fmt.Sprintf("%s, %s", m.UserJoined.FirstName, config.WelcomeMessage)
-        challengeMsg, err := bot.Reply(m, personalizedWelcomeMessage, &tb.ReplyMarkup{InlineKeyboard: shuffledKeys})
-          if err != nil {
-            log.Printf("Can't send challenge msg: %v", err)
-            return
-          }
-
-        bot.Handle(&challengeBtn, passChallenge)
-        bot.Handle(&banBtn, fakeChallenge)
-        bot.Handle(&banBtn2, fakeChallenge)
-
-        n, err := strconv.ParseInt(config.WelcomeTimeout, 10, 64)
-        if err != nil {
-                log.Println(err)
-        }
-    time.AfterFunc(time.Duration(n)*time.Second, func() {
-       // _, passed := passedUsers.Load(m.UserJoined.ID)
-       _, passed := passedUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
-        if !passed {
-           // _, handled := handledUsers.Load(m.UserJoined.ID)
-	_, handled := handledUsers.Load(fmt.Sprintf("%d_%d", m.Chat.ID, m.UserJoined.ID))
-
-            if !handled {
-                banDuration, e := getBanDuration()
+            log.Printf("Error checking user: %v with CAS in chat: %v, error: %v", m.UserJoined, m.Chat, err)
+        } else {
+            if casStatus == "" {
+                log.Printf("User: %v was checked by CAS in chat: %v, user is not in CAS blacklist", m.UserJoined, m.Chat)
+            } else {
+                log.Printf("User: %v was checked by CAS in chat: %v, status: %v", m.UserJoined, m.Chat, casStatus)
+            }
+            if isBannedByCas {
+                banDuration, e := getCasBanDuration()
                 if e != nil {
                     log.Println(e)
                 }
@@ -333,29 +276,96 @@ if config.CasEnable == "yes" {
                 if err != nil {
                     log.Println(err)
                 }
-
-                if config.PrintSuccessAndFail == "show" {
-                    _, err := bot.Edit(challengeMsg, config.AfterFailMessage)
-                    if err != nil {
-                        log.Println(err)
-                    }
-                } else if config.PrintSuccessAndFail == "del" {
-                    err := bot.Delete(m)
-                    if err != nil {
-                        log.Println(err)
-                    }
-                    err = bot.Delete(challengeMsg)
-                    if err != nil {
-                        log.Println(err)
-                    }
-                }
-
-                log.Printf("User: %v was banned in chat: %v for: %v minutes", m.UserJoined, m.Chat, config.BanDurations)
+                log.Printf("User: %v was banned by CAS in chat: %v", m.UserJoined, m.Chat)
+                return
             }
-            handledUsers.Delete(m.UserJoined.ID)
         }
-        passedUsers.Delete(m.UserJoined.ID)
-    })
+    }
+
+    // Проверяем, прошел ли пользователь уже проверку
+    _, passed := passedUsers.Load(m.UserJoined.ID)
+    if passed {
+        return
+    }
+
+    // Применяем ограничения к пользователю
+    newChatMember := tb.ChatMember{User: m.UserJoined, RestrictedUntil: tb.Forever(), Rights: tb.Rights{CanSendMessages: false}}
+    err = bot.Restrict(m.Chat, &newChatMember)
+    if err != nil {
+        log.Println(err)
+    }
+
+    // Выводим капчу только для непрошедших пользователей
+    if _, handled := handledUsers.Load(m.UserJoined.ID); !handled {
+        challengeBtn := tb.InlineButton{
+            Unique: "challenge_btn",
+            Text:   config.ButtonText,
+            Data:   "challenge_btn",
+        }
+        banBtn := tb.InlineButton{
+            Unique: "ban_btn",
+            Text:   config.FakeButton,
+            Data:   "ban_btn",
+        }
+        banBtn2 := tb.InlineButton{
+            Unique: "ban_btn_2",
+            Text:   config.FakeButton,
+            Data:   "ban_btn_2",
+        }
+        shuffledKeys := shuffleButtons([]tb.InlineButton{challengeBtn, banBtn, banBtn2})
+        personalizedWelcomeMessage := fmt.Sprintf("%s, %s", m.UserJoined.FirstName, config.WelcomeMessage)
+        challengeMsg, err := bot.Reply(m, personalizedWelcomeMessage, &tb.ReplyMarkup{InlineKeyboard: shuffledKeys})
+        if err != nil {
+            log.Printf("Can't send challenge message: %v", err)
+            return
+        }
+
+        bot.Handle(&challengeBtn, passChallenge)
+        bot.Handle(&banBtn, fakeChallenge)
+        bot.Handle(&banBtn2, fakeChallenge)
+
+        n, err := strconv.ParseInt(config.WelcomeTimeout, 10, 64)
+        if err != nil {
+            log.Println(err)
+        }
+        time.AfterFunc(time.Duration(n)*time.Second, func() {
+            _, passed := passedUsers.Load(m.UserJoined.ID)
+            if !passed {
+                _, handled := handledUsers.Load(m.UserJoined.ID)
+                if !handled {
+                    banDuration, e := getBanDuration()
+                    if e != nil {
+                        log.Println(e)
+                    }
+                    chatMember := tb.ChatMember{User: m.UserJoined, RestrictedUntil: banDuration}
+                    err := bot.Ban(m.Chat, &chatMember)
+                    if err != nil {
+                        log.Println(err)
+                    }
+
+                    if config.PrintSuccessAndFail == "show" {
+                        _, err := bot.Edit(challengeMsg, config.AfterFailMessage)
+                        if err != nil {
+                            log.Println(err)
+                        }
+                    } else if config.PrintSuccessAndFail == "del" {
+                        err := bot.Delete(m)
+                        if err != nil {
+                            log.Println(err)
+                        }
+                        err = bot.Delete(challengeMsg)
+                        if err != nil {
+                            log.Println(err)
+                        }
+                    }
+
+                    log.Printf("User: %v was banned in chat: %v for: %v minutes", m.UserJoined, m.Chat, config.BanDurations)
+                }
+                handledUsers.Delete(m.UserJoined.ID)
+            }
+            passedUsers.Delete(m.UserJoined.ID)
+        })
+    }
 }
 
 func readFileToString(filePath string) (string, error) {
@@ -377,8 +387,7 @@ func passChallenge(c *tb.Callback) {
         return
     }
 
-   // passedUsers.Store(c.Sender.ID, struct{}{})
-     passedUsers.Store(fmt.Sprintf("%d_%d", c.Message.Chat.ID, c.Sender.ID), struct{}{})
+    passedUsers.Store(c.Sender.ID, struct{}{})
 
     if config.PrintSuccessAndFail == "show" {
         _, err := bot.Edit(c.Message, config.AfterSuccessMessage)
@@ -449,8 +458,7 @@ func fakeChallenge(c *tb.Callback) {
             }
         }
 
-       // handledUsers.Store(c.Sender.ID, struct{}{})
-	handledUsers.Store(fmt.Sprintf("%d_%d", c.Message.Chat.ID, c.Sender.ID), struct{}{})
+        handledUsers.Store(c.Sender.ID, struct{}{})
 
            log.Printf("User: %v was banned by fake button in chat: %v for: %v minutes", c.Sender, c.Message.Chat, config.FakeBanDurationMin)
 }
@@ -504,6 +512,26 @@ func getBanDuration() (int64, error) {
 
         return time.Now().Add(time.Duration(n) * time.Minute).Unix(), nil
 }
+
+
+func getCasBanDuration() (int64, error) {
+//    return time.Now().Add(time.Duration(config.CasBanDuration) * time.Minute).Unix(), nil
+
+        if config.CasBanDuration == "forever" {
+                return tb.Forever(), nil
+        }
+
+        n, err := strconv.ParseInt(config.CasBanDuration, 10, 64)
+        if err != nil {
+                return 0, err
+        }
+
+        return time.Now().Add(time.Duration(n) * time.Minute).Unix(), nil
+
+
+}
+
+
 
 func initSocks5Client() (*http.Client, error) {
         addr := fmt.Sprintf("%s:%s", config.Socks5Address, config.Socks5Port)
