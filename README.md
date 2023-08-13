@@ -17,7 +17,8 @@ This bot has been tested on several supergroups (2000+ people) for a long time a
 
 ## Cloud hosted instance of the bot
 
-[@gate_troitsk_bot](https://t.me/gate_troitsk_bot) - fork
+[@gate_troitsk_bot](https://t.me/gate_troitsk_bot) - fork rus
+[@CaptchaFakeBot](https://t.me/CaptchaFakeBot) - fork global
 
 [@cloud_tg_captcha_bot](https://t.me/cloud_tg_captcha_bot) - original
 
