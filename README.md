@@ -1,5 +1,6 @@
 # Fork 
 As it turned out, the original bot from mxssl/tg-captcha-bot also sometimes allows new users to pass through without showing the captcha. At the moment, the problem has not been found, but work on the bot has been restored.
+
 **ATTENTION:** If you have enabled hiding participants, the bot will not work!
 
 # Telegram Captcha Bot
