@@ -1,5 +1,6 @@
-# Fork is abandoned. 
-The fake button is rarely used, making the feature largely pointless. Additionally, the fork contains a bug preventing captcha from displaying for some users.
+# Fork 
+As it turned out, the original bot from mxssl/tg-captcha-bot also sometimes allows new users to pass through without showing the captcha. At the moment, the problem has not been found, but work on the bot has been restored.
+**ATTENTION:** If you have enabled hiding participants, the bot will not work!
 
 # Telegram Captcha Bot
 Telegram bot that validates new users that enter supergroup. Validation works like a simple captcha. Bot written in Go (Golang).
