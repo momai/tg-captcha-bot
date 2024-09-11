@@ -19,13 +19,6 @@ This bot has been tested on several supergroups (2000+ people) for a long time a
 
 ![20230428_141709](https://user-images.githubusercontent.com/1340282/235325727-c70cd98b-b395-4fd7-82c5-3a9cbb32ba28.gif)
 
-## Cloud hosted instance of the bot
-
-[@gate_troitsk_bot](https://t.me/gate_troitsk_bot) - fork rus
-[@CaptchaFakeBot](https://t.me/CaptchaFakeBot) - fork global
-
-[@cloud_tg_captcha_bot](https://t.me/cloud_tg_captcha_bot) - original
-
 ## How it works
 
 1. Add the bot to your supergroup
