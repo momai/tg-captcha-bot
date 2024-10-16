@@ -1,5 +1,7 @@
 # Fork 
-As it turned out, the original bot from mxssl/tg-captcha-bot also sometimes allows new users to pass through without showing the captcha. At the moment, the problem has not been found, but work on the bot has been restored.
+This fork, like the original bot mxssl/tg-captcha-bot, faces the issue of allowing new users without displaying a captcha. The problem is not with the bot itself but with how Telegram works: some users, especially those with a premium subscription, can join chats without Telegram sending the service message about their entry. As a result, the bot does not trigger the captcha since it simply does not detect the event.
+
+After several years of using this bot, it has become evident that the number of users joining chats without an entry event continues to grow. Therefore, it is recommended to switch to more advanced solutions that utilize machine learning and spam lists for effective chat protection. I suggest switching to this bot: link (son).
 
 **ATTENTION:** If you have enabled hiding participants, the bot will not work!
 
