@@ -121,7 +121,7 @@ func main() {
 
 
 
-                helpMessage, err := readFileToString("help_message.txt")
+                helpMessage, err := readFileToString(conf_path, "help_message.txt")
 if err != nil {
         log.Fatalf("Error reading help message file: %v", err)
 }
