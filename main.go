@@ -14,7 +14,6 @@ import (
         "syscall"
         "time"
         "math/rand"
-        "path"
         "github.com/pkg/errors"
         "github.com/spf13/viper"
         "golang.org/x/net/proxy"
@@ -121,7 +120,7 @@ func main() {
 
 
 
-                helpMessage, err := readFileToString(conf_path, "help_message.txt")
+                helpMessage, err := readFileToString("help_message.txt")
 if err != nil {
         log.Fatalf("Error reading help message file: %v", err)
 }
