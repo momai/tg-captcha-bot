@@ -1,12 +1,28 @@
-# Deprecated
+# ВАЖНО! / IMPORTANT!
 
-This project is no longer maintained. Please consider using this alternative instead https://github.com/momai/ClubDoorman/
+**Этот проект больше не поддерживается.**  
+**This project is no longer maintained.**
 
-This fork, like the original bot mxssl/tg-captcha-bot, faces the issue of allowing new users without displaying a captcha. The problem is not with the bot itself but with how Telegram works: some users, especially those with a premium subscription, can join chats without Telegram sending the service message about their entry. As a result, the bot does not trigger the captcha since it simply does not detect the event.
+## 👉 [Рекомендуем использовать ClubDoorman / Please use ClubDoorman instead](https://github.com/momai/ClubDoorman/)
 
-After several years of using this bot, it has become evident that the number of users joining chats without an entry event continues to grow. Therefore, it is recommended to switch to more advanced solutions that utilize machine learning and spam lists for effective chat protection. I suggest switching to this bot: link https://github.com/momai/ClubDoorman/.
+---
 
-**ATTENTION:** If you have enabled hiding participants, the bot will not work!
+### 🇷🇺 Для русскоязычных чатов
+
+**Хотите просто рабочий антиспам-бот?**  
+Воспользуйтесь готовым облачным решением:  
+👉 [@gate_troitsk_bot](https://t.me/gate_troitsk_bot) — просто добавьте в свой чат, всё работает из коробки.
+
+- Всегда актуальная версия, поддержка, инструкции на русском.
+- [Инструкция](https://telegra.ph/GateTroitsBot-04-19)
+- Связь: [@momai](https://t.me/momai)
+
+---
+
+<details>
+<summary>Legacy README (English)</summary>
+
+</details>
 
 # Telegram Captcha Bot
 Telegram bot that validates new users that enter supergroup. Validation works like a simple captcha. Bot written in Go (Golang).
