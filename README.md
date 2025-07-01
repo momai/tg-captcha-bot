@@ -1,6 +1,7 @@
 # ВАЖНО! / IMPORTANT!
 
-**Этот проект больше не поддерживается.**  
+## Этот проект больше не поддерживается.
+
 **This project is no longer maintained.**
 
 ## 👉 [Рекомендуем использовать ClubDoorman / Please use ClubDoorman instead](https://github.com/momai/ClubDoorman/)
