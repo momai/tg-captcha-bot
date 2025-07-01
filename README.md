@@ -7,29 +7,27 @@
 
 ---
 
-### 🇷🇺 Для русскоязычных чатов
+### Для русскоязычных чатов
 
 **Хотите просто рабочий антиспам-бот?**  
 Воспользуйтесь готовым облачным решением:  
 👉 [@gate_troitsk_bot](https://t.me/gate_troitsk_bot) — просто добавьте в свой чат, всё работает из коробки.
 
-- Всегда актуальная версия, поддержка, инструкции на русском.
-- [Инструкция](https://telegra.ph/GateTroitsBot-04-19)
+- Всегда актуальная версия, поддержка.
+- Бот не требует настроек и команд — всё работает автоматически.
+- Просто добавьте бота — остальное он сделает сам.
+- Простая [инструкция](https://telegra.ph/GateTroitsBot-04-19)
 - Связь: [@momai](https://t.me/momai)
 
 ---
+## Legacy README (English)
 
-<details>
-<summary>Legacy README (English)</summary>
-
-</details>
-
-# Telegram Captcha Bot
+### Telegram Captcha Bot
 Telegram bot that validates new users that enter supergroup. Validation works like a simple captcha. Bot written in Go (Golang).
  
 This bot has been tested on several supergroups (2000+ people) for a long time and has shown its effectiveness against spammers.
 
-# Fork information
+### Fork information
 - Two fake buttons have been added, pressing on which the user gets banned.
 - Randomization of the button order. The original button for allowing access to the chat will never be the first in the list.
 - If print_success_and_fail_messages_strategy = "del" is selected in the configuration, the message about the user entering the chat is also deleted.
@@ -40,7 +38,7 @@ This bot has been tested on several supergroups (2000+ people) for a long time a
 
 ![20230428_141709](https://user-images.githubusercontent.com/1340282/235325727-c70cd98b-b395-4fd7-82c5-3a9cbb32ba28.gif)
 
-## How it works
+#### How it works
 
 1. Add the bot to your supergroup
 2. Promote the bot for administrator privileges
@@ -49,13 +47,13 @@ This bot has been tested on several supergroups (2000+ people) for a long time a
 5. Bot shows a welcome message and a captcha button to the user
 6. If the user doesn't press the button within 30 seconds then the user is banned by the bot
 
-## If you want to run your own instance of the bot
+#### If you want to run your own instance of the bot
 
 - [Option 1 (the easiest one)](./INSTALL-1.md): docker-compose + already built docker container
 - [Option 2](./INSTALL-2.md): docker-compose + build your own docker container
 - [Option 3](./INSTALL-3.md): systemd
 
-## Commands
+#### Commands
 
 `/healthz` - check that the bot is working correctly
 
@@ -69,6 +67,6 @@ In this mode, all new chat participants receive a temporary 5-minute ban. This c
 
 You can change several bot's settings (welcome message, ban duration, socks5 proxy server) through the configuration file `config.toml`
 
-## Alternatives / Forks
+#### Alternatives / Forks
 
 - [momai/tg-captcha-bot](https://github.com/momai/tg-captcha-bot) - fork of `tg-captcha-bot` with interesting additional features.
