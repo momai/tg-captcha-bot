@@ -4,7 +4,7 @@
 
 **This project is no longer maintained.**
 
-##№ 👉 [Рекомендуем использовать форк ClubDoorman](https://github.com/momai/ClubDoorman/)
+## 👉 [Рекомендуем использовать форк ClubDoorman](https://github.com/momai/ClubDoorman/)
 
 ## Для русскоязычных чатов
 
